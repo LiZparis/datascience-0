@@ -1,0 +1,21 @@
+version: '3.1'
+
+services:
+  db:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_USER: lzhang2
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: piscineds
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+# 实现 数据持久化，让你重启 Docker 或电脑时数据库不会丢失
+volumes:
+  pgdata:
+
+# \l              -- 查看数据库列表
+# \c piscineds    -- 连接数据库（你已经在里面了）
+# \dt             -- 查看数据表（如果还没建会为空）
