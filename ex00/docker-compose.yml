@@ -11,10 +11,13 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - /goinfre/lzhang2/pgdata:/var/lib/postgresql/data
 # 实现 数据持久化，让你重启 Docker 或电脑时数据库不会丢失
 volumes:
   pgdata:
+
+# docker exec -it ex00-db-1 psql -U lzhang2 -d piscineds
+# 没有psql -U lzhang2 -d piscineds -h localhost -W
 
 # \l              -- 查看数据库列表
 # \c piscineds    -- 连接数据库（你已经在里面了）
