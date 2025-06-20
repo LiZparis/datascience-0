@@ -11,14 +11,22 @@ services:
     ports:
       - "5432:5432"
     # volumes:
-    # 数据持久化，重启 Docker 或电脑后，数据库依然保留
-      # - /goinfre/lzhang2/pgdata:/var/lib/postgresql/data
-
+    #   - /goinfre/lzhang2/pgdata:/var/lib/postgresql/data
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: lzhang2@student.42.fr
+      PGADMIN_DEFAULT_PASSWORD: mysecretpassword
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
 # 实现 数据持久化，让你重启 Docker 或电脑时数据库不会丢失
 volumes:
   pgdata:
 
-# docker exec -it ex00-db-1 psql -U lzhang2 -d piscineds
+# docker exec -it ex02-db-1 psql -U lzhang2 -d piscineds
 # 没有psql -U lzhang2 -d piscineds -h localhost -W
 
 # \l              -- 查看数据库列表
