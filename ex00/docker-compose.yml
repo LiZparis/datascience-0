@@ -10,21 +10,48 @@ services:
       POSTGRES_DB: piscineds
     ports:
       - "5432:5432"
-    # volumes:
-    # 数据持久化，重启 Docker 或电脑后，数据库依然保留
-      # - /goinfre/lzhang2/pgdata:/var/lib/postgresql/data
+    volumes:
+    # 数据持久化，重启 Docker 或电脑后，数据库依然保留。 不想储存数据就 docker compose down -v
+      - pgdata:/goinfre/lzhang2/pgdata:/var/lib/postgresql/data
+  # 要在容器内运行 Python 脚本，那么 app 服务（Python 容器）是不可少的。需要把脚本里的端口修改能db
+  # app: 
+  #   image: python:3.11
+  #   working_dir: /app
+  #   volumes:
+  #     - .:/app
+  #     # 这里的tail -f /dev/null是为了pip下载
+  #   command: bash -c "pip install psycopg2 pandas"
+  #   depends_on:
+  #     - db
 
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: lzhang2@student.42.fr
+      PGADMIN_DEFAULT_PASSWORD: mysecretpassword
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
 # 实现 数据持久化，让你重启 Docker 或电脑时数据库不会丢失
 volumes:
   pgdata:
 
 # docker exec -it ex00-db-1 psql -U lzhang2 -d piscineds
-# 没有psql -U lzhang2 -d piscineds -h localhost -W
+# 先进docker exec -it ex00-db-1 sh 再 psql -U lzhang2 -d piscineds -h localhost -W
+# docker exec -it ex00-db-1 sh 再进入 psql -U lzhang2 -d piscineds
+# 进入PYTHON容器 docker exec -it ex00-app-1 bash 再执行脚本 
+# 把测试脚本里的host="db“改成 port="5432"host="localhost",    port="5432" 再直接执行脚本就可以了
+
+# docker volume ls  
+# docker inspect ex00_pgdata 
+# docker volume prune  ->remove anonymous local volumes not used by at least one container.
 
 # \l              -- 查看数据库列表
 # \c dbname	连接到数据库
 # \c piscineds    -- 连接数据库（你已经在里面了）
 # \dt             -- 查看数据表（如果还没建会为空）
+# 查询某张表的内容（例如 students）SELECT * FROM students;
 # DROP TABLE students; -- 删除数据
 # \d table_name	查看某个表的结构（字段、类型、约束等）
 # \dn	显示所有 schema
