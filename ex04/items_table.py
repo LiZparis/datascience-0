@@ -11,18 +11,32 @@ def table_exists(engine, table_name):
     metadata.reflect(bind=engine)
     return table_name in metadata.tables
 
+
 def load_csv_to_postgres(engine, csv_path, table_name):
     print(f"{csv_path}is loading to {table_name}...")
-    df = pd.read_csv(csv_path)
-
-    # 明确设置字段类型，符合“6种数据类型”要求
+    # df = pd.read_csv(csv_path)
+    # .csv文件太大最好流式写入版本（不 concat
     dtype_map = {
         "product_id": types.Integer(),
         "category_id": types.BigInteger(),
         "category_code": types.String(255),
         "brand": types.String(255)  # 或 sqlalchemy.UUID(as_uuid=True) 如果你愿意
     }
-    df.to_sql(table_name, engine, index=False, dtype=dtype_map)
+    try:
+        for chunk in pd.read_csv(csv_path, chunksize=10000):
+            # ✅ 插入数据库，流式写入，防止内存占满
+            chunk.to_sql(
+                table_name,
+                engine,
+                index=False,
+                if_exists="append",  # 每块追加，不要覆盖
+                dtype=dtype_map
+            )
+        print(f"✅ Table {table_name} finished loading.")
+
+    except Exception as e:
+        print(f"❌ Failed to process {table_name}: {e}")
+
 
 def main():
     # user = "lzhang2"
@@ -36,7 +50,7 @@ def main():
     db_url = "postgresql://lzhang2:mysecretpassword@localhost:5432/piscineds"
     engine = create_engine(db_url)
 
-    path = "/goinfre/lzhang2/subject/item/item.csv"  # 修改为你实际路径
+    path = "../../subject/item/item.csv"  # 修改为你实际路径
     table_name = os.path.splitext(os.path.basename(path))[0]
     try:
         if not table_exists(engine, table_name):

@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: mysecretpassword
       POSTGRES_DB: piscineds
     ports:
-      - "5432:5432"
+      - "5432:5432"	
     volumes:
     # 数据持久化，重启 Docker 或电脑后，数据库依然保留。 不想储存数据就 docker compose down -v
       - pgdata:/goinfre/lzhang2/pgdata:/var/lib/postgresql/data
@@ -19,7 +19,10 @@ services:
   #   working_dir: /app
   #   volumes:
   #     - .:/app
-  #     # 这里的tail -f /dev/null是为了pip下载
+  #     # 这里的tail -f /dev/null是为了pip下载后一直执行。最好的办法是直接在&& python test_script.py但是记得把把测试脚本的端口换成D"db“
+  #     或是写的更简洁command: ["python", "test_script.py"]或是command: bash run.sh
+  #     或是command: bash -c "pip install psycopg2 pandas && /bin/bash"这样容器不会退出，会停在 bash 提示符，方便你手动运行脚本测试
+
   #   command: bash -c "pip install psycopg2 pandas"
   #   depends_on:
   #     - db
